@@ -11,7 +11,7 @@ target_sources(teapot
 
 set_target_properties(teapot
     PROPERTIES
-        CXX_STANDARD 17
+        CXX_STANDARD 23
         CXX_SATANDARD_REQUIRED YES
         CXX_EXTENSION NO
 )
@@ -19,4 +19,7 @@ set_target_properties(teapot
 target_link_libraries(teapot
     PRIVATE
         fmt::fmt
+        libs::utils
+        libs::warnings_as_errors
+        libs::window
 )
