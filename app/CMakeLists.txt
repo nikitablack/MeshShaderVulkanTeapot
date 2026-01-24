@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.25 FATAL_ERROR)
 
-project(teapot LANGUAGES CXX)
-
 add_executable(teapot)
 
 target_sources(teapot
