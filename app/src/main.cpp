@@ -1,6 +1,7 @@
 #include <fmt/core.h>
 
 #include <cstdlib>
+#include <graphics/vk/GraphicsManager.hpp>
 #include <utils/try_expected.hpp>
 #include <window/Window.hpp>
 
@@ -9,6 +10,9 @@ namespace {
 auto main_impl() -> std::expected<void, std::string> {
     window::Window window{};
     TRY_EXPECTED_VOID(window.init("Teapot"));
+
+    graphics::vk::GraphicsManager graphicsManager{};
+    TRY_EXPECTED_VOID(graphicsManager.init(window));
 
     while (!window.shouldClose()) {
         window.tick();

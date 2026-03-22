@@ -17,6 +17,7 @@ set_target_properties(teapot
 target_link_libraries(teapot
     PRIVATE
         fmt::fmt
+        libs::graphics::vk
         libs::utils
         libs::warnings_as_errors
         libs::window

@@ -21,7 +21,7 @@ public:
     auto destroy() noexcept -> void;
 
 public:
-    auto get() const noexcept -> GLFWwindow const*;
+    auto get() noexcept -> GLFWwindow*;
     auto tick() noexcept -> void;
     auto shouldClose() const noexcept -> bool;
     auto minimized() const noexcept -> bool;

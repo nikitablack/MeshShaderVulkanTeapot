@@ -38,7 +38,7 @@ auto Window::destroy() noexcept -> void {
     glfwTerminate();
 }
 
-auto Window::get() const noexcept -> GLFWwindow const* {
+auto Window::get() noexcept -> GLFWwindow* {
     return m_window;
 }
 
