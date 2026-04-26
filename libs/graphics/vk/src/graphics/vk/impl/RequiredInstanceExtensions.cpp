@@ -18,6 +18,8 @@ auto RequiredInstanceExtensions::get() noexcept -> std::vector<std::string> {
         result.push_back(glfwExtensions[i]);
     }
 
+    result.push_back(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME);
+
     return result;
 }
 

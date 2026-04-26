@@ -16,8 +16,11 @@ auto main_impl() -> std::expected<void, std::string> {
 
     while (!window.shouldClose()) {
         window.tick();
+
+        TRY_EXPECTED_VOID(graphicsManager.startFrame(window));
     }
 
+    graphicsManager.destroy();
     window.destroy();
 
     return {};
