@@ -10,14 +10,10 @@ namespace graphics::vk::impl {
                                             ) noexcept -> std::expected<VkSurfaceCapabilities2KHR, std::string> {
     fmt::println("getting surface capabilities");
 
-    VkPhysicalDeviceSurfaceInfo2KHR info{};
-    info.sType = vku::GetSType<VkPhysicalDeviceSurfaceInfo2KHR>();
-    info.pNext = nullptr;
+    VkPhysicalDeviceSurfaceInfo2KHR info = vku::InitStructHelper{};
     info.surface = surface;
 
-    VkSurfaceCapabilities2KHR caps{};
-    caps.sType = vku::GetSType<VkSurfaceCapabilities2KHR>();
-    caps.pNext = nullptr;
+    VkSurfaceCapabilities2KHR caps = vku::InitStructHelper{};
 
     if (vkGetPhysicalDeviceSurfaceCapabilities2KHR(physicalDevice, &info, &caps) != VK_SUCCESS) {
         return std::unexpected{"failed to get surface capabilities"};

@@ -11,9 +11,7 @@ auto create_instance() noexcept -> std::expected<VkInstance, std::string> {
 
     const auto& requiredExtensions{RequiredInstanceExtensions::get()};
 
-    VkApplicationInfo appInfo{};
-    appInfo.sType = vku::GetSType<VkApplicationInfo>();
-    appInfo.pNext = nullptr;
+    VkApplicationInfo appInfo = vku::InitStructHelper{};
     appInfo.pApplicationName = "Teapot";
     appInfo.applicationVersion = 1;
     appInfo.pEngineName = nullptr;
@@ -27,9 +25,7 @@ auto create_instance() noexcept -> std::expected<VkInstance, std::string> {
         requiredExtensionsStr.push_back(ext.c_str());
     }
 
-    VkInstanceCreateInfo info{};
-    info.sType = vku::GetSType<VkInstanceCreateInfo>();
-    info.pNext = nullptr;
+    VkInstanceCreateInfo info = vku::InitStructHelper{};
     info.flags = 0;
     info.pApplicationInfo = &appInfo;
     info.enabledLayerCount = 0;

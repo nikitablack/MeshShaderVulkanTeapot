@@ -23,7 +23,7 @@ auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkP
 namespace graphics::vk::impl::features {
 
 RequiredFeatures::RequiredFeatures() noexcept {
-    m_features2.sType = vku::GetSType<VkPhysicalDeviceFeatures2>();
+    m_features2 = vku::InitStructHelper{};
 
     for (auto const& p : featureNameToPtr()) {
         m_features2.features.*(p.second) = VK_TRUE;
@@ -47,8 +47,7 @@ auto RequiredFeatures::printImpl() const noexcept -> void {
 }
 
 auto RequiredFeatures::checkImpl(VkPhysicalDevice physicalDevice) const noexcept -> bool {
-    VkPhysicalDeviceFeatures2 features{};
-    features.sType = vku::GetSType<VkPhysicalDeviceFeatures2>();
+    VkPhysicalDeviceFeatures2 features = vku::InitStructHelper{};
 
     vkGetPhysicalDeviceFeatures2(physicalDevice, &features);
 

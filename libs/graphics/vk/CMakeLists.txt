@@ -18,7 +18,10 @@ set_target_properties(graphics_vk
 
 target_sources(graphics_vk
     PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/barrier_helper.hpp
+
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/GraphicsManager.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/VulkanQueue.hpp
 
     PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/features/Features.hpp
@@ -31,16 +34,24 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/features/Vulkan13Features.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/features/Vulkan13Features.hpp
 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_command_buffer.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_command_buffer.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_compose_rendering.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_compose_rendering.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_instance_version.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_instance_version.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_physical_device_support.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_physical_device_support.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_required_instance_extension.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_required_instance_extension.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_command_pool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_command_pool.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_device.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_device.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_semaphore.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_semaphore.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_surface.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_surface.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_swapchain_image_views.cpp
@@ -53,6 +64,8 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_physical_device_properties.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_present_mode.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_present_mode.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_queue.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_queue.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_supported_physical_devices.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_supported_physical_devices.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_capabilities.cpp
@@ -63,11 +76,19 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_images.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_format.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_format.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_image_index.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_image_index.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/present.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/present.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredApiVersion.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredDeviceExtensions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredDeviceExtensions.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredInstanceExtensions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredInstanceExtensions.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/submit.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/submit.hpp
+
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/barrier_helper.cpp
 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/GraphicsManager.cpp
 )

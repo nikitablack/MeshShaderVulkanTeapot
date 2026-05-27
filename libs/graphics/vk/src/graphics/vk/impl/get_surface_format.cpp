@@ -13,9 +13,7 @@ auto get_surface_format(VkPhysicalDevice physicalDevice,  //
 
     uint32_t formatCount{0};
 
-    VkPhysicalDeviceSurfaceInfo2KHR surfaceInfo{};
-    surfaceInfo.sType = vku::GetSType<VkPhysicalDeviceSurfaceInfo2KHR>();
-    surfaceInfo.pNext = nullptr;
+    VkPhysicalDeviceSurfaceInfo2KHR surfaceInfo = vku::InitStructHelper{};
     surfaceInfo.surface = surface;
 
     if ((vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, &surfaceInfo, &formatCount, nullptr) != VK_SUCCESS) ||
@@ -25,7 +23,7 @@ auto get_surface_format(VkPhysicalDevice physicalDevice,  //
 
     std::vector<VkSurfaceFormat2KHR> formats(formatCount);
     for (size_t i{0}; i < formats.size(); ++i) {
-        formats[i].sType = vku::GetSType<VkSurfaceFormat2KHR>();
+        formats[i] = vku::InitStructHelper{};
     }
 
     if (vkGetPhysicalDeviceSurfaceFormats2KHR(physicalDevice, &surfaceInfo, &formatCount, formats.data()) !=

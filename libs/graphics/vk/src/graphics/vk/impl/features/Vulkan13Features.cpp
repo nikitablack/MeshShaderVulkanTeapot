@@ -10,7 +10,7 @@ auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkP
     std::unordered_map<std::string, VkBool32 VkPhysicalDeviceVulkan13Features::*> const nameToPtr{
         // {"maintenance4", &VkPhysicalDeviceVulkan13Features::maintenance4},  //
         {"dynamicRendering", &VkPhysicalDeviceVulkan13Features::dynamicRendering},  //
-        // {"synchronization2", &VkPhysicalDeviceVulkan13Features::synchronization2},  //
+        {"synchronization2", &VkPhysicalDeviceVulkan13Features::synchronization2},  //
     };
 
     return nameToPtr;
@@ -21,7 +21,7 @@ auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkP
 namespace graphics::vk::impl::features {
 
 Vulkan13Features::Vulkan13Features() noexcept {
-    m_features.sType = vku::GetSType<VkPhysicalDeviceVulkan13Features>();
+    m_features = vku::InitStructHelper{};
 
     for (auto const& p : featureNameToPtr()) {
         m_features.*(p.second) = VK_TRUE;
@@ -35,12 +35,8 @@ auto Vulkan13Features::addToChain(void** pNext) noexcept -> void** {
 }
 
 auto Vulkan13Features::check(VkPhysicalDevice physicalDevice) const noexcept -> bool {
-    VkPhysicalDeviceVulkan13Features features{};
-    features.sType = vku::GetSType<VkPhysicalDeviceVulkan13Features>();
-
-    VkPhysicalDeviceFeatures2 features2{};
-    features2.sType = vku::GetSType<VkPhysicalDeviceFeatures2>();
-    features2.pNext = &features;
+    VkPhysicalDeviceVulkan13Features features = vku::InitStructHelper{};
+    VkPhysicalDeviceFeatures2 features2 = vku::InitStructHelper{&features};
 
     vkGetPhysicalDeviceFeatures2(physicalDevice, &features2);
 

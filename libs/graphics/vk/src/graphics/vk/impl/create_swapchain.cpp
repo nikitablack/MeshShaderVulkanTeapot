@@ -21,9 +21,7 @@ auto create_swapchain(VkDevice device,  //
     auto const m{std::max(surfaceCapabilities.surfaceCapabilities.minImageCount, IMAGE_COUNT)};
     auto const imageCount{std::min(m, surfaceCapabilities.surfaceCapabilities.maxImageCount)};
 
-    VkSwapchainCreateInfoKHR info{};
-    info.sType = vku::GetSType<VkSwapchainCreateInfoKHR>();
-    info.pNext = nullptr;
+    VkSwapchainCreateInfoKHR info = vku::InitStructHelper{};
     info.flags = 0;
     info.surface = surface;
     info.minImageCount = imageCount;

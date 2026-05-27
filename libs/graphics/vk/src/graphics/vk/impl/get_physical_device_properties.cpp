@@ -4,9 +4,7 @@
 namespace graphics::vk::impl {
 
 [[nodiscard]] auto get_physical_device_properties(VkPhysicalDevice device) noexcept -> VkPhysicalDeviceProperties2 {
-    VkPhysicalDeviceProperties2 properties{};
-    properties.sType = vku::GetSType<VkPhysicalDeviceProperties2>();
-    properties.pNext = nullptr;
+    VkPhysicalDeviceProperties2 properties = vku::InitStructHelper{};
 
     vkGetPhysicalDeviceProperties2(device, &properties);
 

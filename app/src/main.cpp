@@ -18,6 +18,8 @@ auto main_impl() -> std::expected<void, std::string> {
         window.tick();
 
         TRY_EXPECTED_VOID(graphicsManager.startFrame(window));
+        // TODO: draw something
+        TRY_EXPECTED_VOID(graphicsManager.endFrame());
     }
 
     graphicsManager.destroy();

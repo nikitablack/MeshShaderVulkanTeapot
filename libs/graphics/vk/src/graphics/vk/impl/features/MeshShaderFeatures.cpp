@@ -20,7 +20,7 @@ auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkP
 namespace graphics::vk::impl::features {
 
 MeshShaderFeatures::MeshShaderFeatures() noexcept {
-    m_features.sType = vku::GetSType<VkPhysicalDeviceMeshShaderFeaturesEXT>();
+    m_features = vku::InitStructHelper{};
 
     for (auto const& p : featureNameToPtr()) {
         m_features.*(p.second) = VK_TRUE;
@@ -34,12 +34,8 @@ auto MeshShaderFeatures::addToChain(void** pNext) noexcept -> void** {
 }
 
 auto MeshShaderFeatures::check(VkPhysicalDevice physicalDevice) const noexcept -> bool {
-    VkPhysicalDeviceMeshShaderFeaturesEXT features{};
-    features.sType = vku::GetSType<VkPhysicalDeviceMeshShaderFeaturesEXT>();
-
-    VkPhysicalDeviceFeatures2 features2{};
-    features2.sType = vku::GetSType<VkPhysicalDeviceFeatures2>();
-    features2.pNext = &features;
+    VkPhysicalDeviceMeshShaderFeaturesEXT features = vku::InitStructHelper{};
+    VkPhysicalDeviceFeatures2 features2 = vku::InitStructHelper{&features};
 
     vkGetPhysicalDeviceFeatures2(physicalDevice, &features2);
 

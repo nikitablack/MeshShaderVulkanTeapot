@@ -27,9 +27,7 @@ auto create_swaphain_image_views(VkDevice device,  //
     srRange.baseArrayLayer = 0;
     srRange.layerCount = 1;
 
-    VkImageViewCreateInfo info{};
-    info.sType = vku::GetSType<VkImageViewCreateInfo>();
-    info.pNext = nullptr;
+    VkImageViewCreateInfo info = vku::InitStructHelper{};
     info.flags = 0;
     info.viewType = VK_IMAGE_VIEW_TYPE_2D;
     info.format = surfaceFormat;

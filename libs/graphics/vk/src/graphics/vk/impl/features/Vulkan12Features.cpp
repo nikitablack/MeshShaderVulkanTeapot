@@ -31,7 +31,7 @@ auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkP
 namespace graphics::vk::impl::features {
 
 Vulkan12Features::Vulkan12Features() noexcept {
-    m_features.sType = vku::GetSType<VkPhysicalDeviceVulkan12Features>();
+    m_features = vku::InitStructHelper{};
 
     for (auto const& p : featureNameToPtr()) {
         m_features.*(p.second) = VK_TRUE;
@@ -45,12 +45,8 @@ auto Vulkan12Features::addToChain(void** pNext) noexcept -> void** {
 }
 
 auto Vulkan12Features::check(VkPhysicalDevice physicalDevice) const noexcept -> bool {
-    VkPhysicalDeviceVulkan12Features features{};
-    features.sType = vku::GetSType<VkPhysicalDeviceVulkan12Features>();
-
-    VkPhysicalDeviceFeatures2 features2{};
-    features2.sType = vku::GetSType<VkPhysicalDeviceFeatures2>();
-    features2.pNext = &features;
+    VkPhysicalDeviceVulkan12Features features = vku::InitStructHelper{};
+    VkPhysicalDeviceFeatures2 features2 = vku::InitStructHelper{&features};
 
     vkGetPhysicalDeviceFeatures2(physicalDevice, &features2);
 

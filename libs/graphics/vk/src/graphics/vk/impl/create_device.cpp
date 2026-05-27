@@ -18,9 +18,7 @@ auto create_device(VkPhysicalDevice physicalDevice,  //
     std::vector<float> queuePriorities(queueCount);
     std::fill(queuePriorities.begin(), queuePriorities.end(), 1.0f);
 
-    VkDeviceQueueCreateInfo queueCreateInfo{};
-    queueCreateInfo.sType = vku::GetSType<VkDeviceQueueCreateInfo>();
-    queueCreateInfo.pNext = nullptr;
+    VkDeviceQueueCreateInfo queueCreateInfo = vku::InitStructHelper{};
     queueCreateInfo.flags = 0;
     queueCreateInfo.queueFamilyIndex = queueFamily;
     queueCreateInfo.queueCount = static_cast<uint32_t>(queuePriorities.size());
@@ -37,8 +35,7 @@ auto create_device(VkPhysicalDevice physicalDevice,  //
 
     features::RequiredFeatures requiredFeatures{};
 
-    VkDeviceCreateInfo deviceCreateInfo{};
-    deviceCreateInfo.sType = vku::GetSType<VkDeviceCreateInfo>();
+    VkDeviceCreateInfo deviceCreateInfo = vku::InitStructHelper{};
     deviceCreateInfo.pNext = requiredFeatures.getChain();
     deviceCreateInfo.flags = 0;
     deviceCreateInfo.queueCreateInfoCount = 1;

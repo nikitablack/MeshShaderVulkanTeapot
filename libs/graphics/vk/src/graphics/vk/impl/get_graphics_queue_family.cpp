@@ -17,7 +17,7 @@ auto get_graphics_queue_family(VkPhysicalDevice physicalDevice,  //
 
     std::vector<VkQueueFamilyProperties2> queueFamilies(queueFamilyCount);
     for (size_t i{0}; i < queueFamilies.size(); ++i) {
-        queueFamilies[i].sType = vku::GetSType<VkQueueFamilyProperties2>();
+        queueFamilies[i] = vku::InitStructHelper{};
     }
 
     vkGetPhysicalDeviceQueueFamilyProperties2(physicalDevice, &queueFamilyCount, queueFamilies.data());
