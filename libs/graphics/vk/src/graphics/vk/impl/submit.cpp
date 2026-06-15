@@ -6,7 +6,8 @@ namespace graphics::vk::impl {
 auto submit(VkCommandBuffer commandBuffer,  //
             VkQueue queue,  //
             VkSemaphore imageAvailableSemaphore,  //
-            VkSemaphore renderingFinishedSemaphore  //
+            VkSemaphore renderingFinishedSemaphore,  //
+            VkFence fence  //
             ) noexcept -> std::expected<void, std::string> {
     VkSemaphoreSubmitInfo waitSemaphoreSubmitInfo = vku::InitStructHelper{};
     waitSemaphoreSubmitInfo.semaphore = imageAvailableSemaphore;
@@ -33,7 +34,7 @@ auto submit(VkCommandBuffer commandBuffer,  //
     submitInfo.signalSemaphoreInfoCount = 1;
     submitInfo.pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo;
 
-    if (vkQueueSubmit2(queue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS) {
+    if (vkQueueSubmit2(queue, 1, &submitInfo, fence) != VK_SUCCESS) {
         return std::unexpected{"failed to submit"};
     }
 

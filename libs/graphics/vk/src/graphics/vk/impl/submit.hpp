@@ -10,7 +10,8 @@ namespace graphics::vk::impl {
 [[nodiscard]] auto submit(VkCommandBuffer commandBuffer,  //
                           VkQueue queue,  //
                           VkSemaphore imageAvailableSemaphore,  //
-                          VkSemaphore renderingFinishedSemaphore  //
+                          VkSemaphore renderingFinishedSemaphore,  //
+                          VkFence fence  //
                           ) noexcept -> std::expected<void, std::string>;
 
 }

@@ -1,8 +1,10 @@
 #pragma once
 
+#include <vk_mem_alloc.h>
 #include <vulkan/vulkan.h>
 
 #include <expected>
+#include <graphics/vk/Image2d.hpp>
 #include <graphics/vk/VulkanQueue.hpp>
 #include <string>
 #include <vector>
@@ -31,6 +33,9 @@ public:
 private:
     auto destroyDevice() noexcept -> void;
 
+public:
+    static uint32_t constexpr FRAMES_IN_FLIGHT{2};
+
 private:
     VkInstance m_instance{VK_NULL_HANDLE};
     VkSurfaceKHR m_surface{VK_NULL_HANDLE};
@@ -39,18 +44,25 @@ private:
     VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
     VkDevice m_device{VK_NULL_HANDLE};
     VulkanQueue m_queue{};
+    VmaAllocator m_allocator{VK_NULL_HANDLE};
     VkSurfaceFormat2KHR m_surfaceFormat{};
     VkPresentModeKHR m_presentMode{};
-    VkSemaphore m_imageAvailableSemaphore{VK_NULL_HANDLE};  // !!!!!
-    VkSemaphore m_renderingFinishedSemaphore{VK_NULL_HANDLE};  // !!!!!
-    VkCommandPool m_commandPool{VK_NULL_HANDLE};  // !!!!!
+    VkFormat m_renderTargetFormat{};
+    std::vector<VkSemaphore> m_imageAvailableSemaphores{};
+    // these semaphores are special:
+    // https://vulkan.lunarg.com/doc/view/1.4.313.0/mac/antora/guide/latest/swapchain_semaphore_reuse.html
+    std::vector<VkSemaphore> m_renderingFinishedSemaphores{};
+    std::vector<VkFence> m_fences{};
+    std::vector<VkCommandPool> m_commandPools{};
 
     VkSurfaceCapabilities2KHR m_surfaceCapabilities{};
     VkExtent2D m_surfaceExtent{};
     VkSwapchainKHR m_swapchain{VK_NULL_HANDLE};
     std::vector<VkImage> m_swapchainImages{};
     std::vector<VkImageView> m_swapchainImageViews{};
+    Image2d m_renderTarget{};
 
+    uint32_t m_frameIndex{0};
     uint32_t m_currSwapchainImageIndex{};
 };
 
