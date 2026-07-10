@@ -19,7 +19,10 @@ set_target_properties(graphics_vk
 target_sources(graphics_vk
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/barrier_helper.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/create_shader_module.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/get_push_constant_data.hpp
 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/FrameData.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/GraphicsManager.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/Image2d.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/VulkanQueue.hpp
@@ -37,8 +40,12 @@ target_sources(graphics_vk
 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_command_buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_command_buffer.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_descriptor_set.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/allocate_descriptor_set.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_compose_rendering.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_compose_rendering.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_render_target_rendering.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/begin_render_target_rendering.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_instance_version.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_instance_version.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/check_physical_device_support.cpp
@@ -49,12 +56,22 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_allocator.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_command_pool.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_command_pool.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_descriptor_pool.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_descriptor_pool.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_descriptor_set_layout.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_descriptor_set_layout.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_device.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_device.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fence.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fence.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fullscreen_triangle_pipeline.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fullscreen_triangle_pipeline.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_pipeline_layout.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_pipeline_layout.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_sampler.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_sampler.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_semaphore.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_semaphore.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_surface.cpp
@@ -63,6 +80,8 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_swapchain_image_views.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_swapchain.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_swapchain.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_fullscreen_triangle.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_fullscreen_triangle.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_graphics_queue_family.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_graphics_queue_family.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_physical_device_properties.cpp
@@ -94,6 +113,7 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/submit.hpp
 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/barrier_helper.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/create_shader_module.cpp
 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/GraphicsManager.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/Image2d.cpp

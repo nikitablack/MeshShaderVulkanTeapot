@@ -8,18 +8,18 @@ namespace {
 
 auto featureNameToPtr() noexcept -> std::unordered_map<std::string, VkBool32 VkPhysicalDeviceVulkan12Features::*> {
     std::unordered_map<std::string, VkBool32 VkPhysicalDeviceVulkan12Features::*> const nameToPtr{
-        // {"descriptorBindingPartiallyBound", &VkPhysicalDeviceVulkan12Features::descriptorBindingPartiallyBound},  //
-        // {"descriptorBindingStorageBufferUpdateAfterBind",
-        //  &VkPhysicalDeviceVulkan12Features::descriptorBindingStorageBufferUpdateAfterBind},  //
-        // {"descriptorBindingStorageImageUpdateAfterBind",
-        //  &VkPhysicalDeviceVulkan12Features::descriptorBindingStorageImageUpdateAfterBind},  //
-        // {"descriptorBindingVariableDescriptorCount",
-        //  &VkPhysicalDeviceVulkan12Features::descriptorBindingVariableDescriptorCount},  //
-        // {"shaderStorageBufferArrayNonUniformIndexing",
-        //  &VkPhysicalDeviceVulkan12Features::shaderStorageBufferArrayNonUniformIndexing},  //
-        // {"shaderSampledImageArrayNonUniformIndexing",
-        //  &VkPhysicalDeviceVulkan12Features::shaderSampledImageArrayNonUniformIndexing},  //
-        // {"runtimeDescriptorArray", &VkPhysicalDeviceVulkan12Features::runtimeDescriptorArray},  //
+        {"descriptorBindingPartiallyBound", &VkPhysicalDeviceVulkan12Features::descriptorBindingPartiallyBound},  //
+        {"descriptorBindingStorageBufferUpdateAfterBind",
+         &VkPhysicalDeviceVulkan12Features::descriptorBindingStorageBufferUpdateAfterBind},  //
+        {"descriptorBindingSampledImageUpdateAfterBind",
+         &VkPhysicalDeviceVulkan12Features::descriptorBindingSampledImageUpdateAfterBind},  //
+        {"descriptorBindingVariableDescriptorCount",
+         &VkPhysicalDeviceVulkan12Features::descriptorBindingVariableDescriptorCount},  //
+        {"shaderStorageBufferArrayNonUniformIndexing",
+         &VkPhysicalDeviceVulkan12Features::shaderStorageBufferArrayNonUniformIndexing},  //
+        {"shaderSampledImageArrayNonUniformIndexing",
+         &VkPhysicalDeviceVulkan12Features::shaderSampledImageArrayNonUniformIndexing},  //
+        {"runtimeDescriptorArray", &VkPhysicalDeviceVulkan12Features::runtimeDescriptorArray},  //
         {"scalarBlockLayout", &VkPhysicalDeviceVulkan12Features::scalarBlockLayout},  //
     };
 

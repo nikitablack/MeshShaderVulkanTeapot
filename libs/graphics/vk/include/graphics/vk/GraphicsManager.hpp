@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.h>
 
 #include <expected>
+#include <graphics/vk/FrameData.hpp>
 #include <graphics/vk/Image2d.hpp>
 #include <graphics/vk/VulkanQueue.hpp>
 #include <string>
@@ -35,6 +36,7 @@ private:
 
 public:
     static uint32_t constexpr FRAMES_IN_FLIGHT{2};
+    static uint32_t constexpr DESCRIPTOR_COUNT{100};
 
 private:
     VkInstance m_instance{VK_NULL_HANDLE};
@@ -54,6 +56,12 @@ private:
     std::vector<VkSemaphore> m_renderingFinishedSemaphores{};
     std::vector<VkFence> m_fences{};
     std::vector<VkCommandPool> m_commandPools{};
+    std::vector<VkDescriptorPool> m_descriptorPools{};
+    VkDescriptorSetLayout m_storageDescriptorSetLayout{VK_NULL_HANDLE};
+    VkDescriptorSetLayout m_cisDescriptorSetLayout{VK_NULL_HANDLE};
+    VkPipelineLayout m_pipelineLayout{VK_NULL_HANDLE};
+    VkSampler m_sampler{VK_NULL_HANDLE};
+    VkPipeline m_fullscreenTrianglePipeline{VK_NULL_HANDLE};
 
     VkSurfaceCapabilities2KHR m_surfaceCapabilities{};
     VkExtent2D m_surfaceExtent{};
@@ -64,6 +72,7 @@ private:
 
     uint32_t m_frameIndex{0};
     uint32_t m_currSwapchainImageIndex{};
+    FrameData m_frameData{};
 };
 
 }  // namespace graphics::vk

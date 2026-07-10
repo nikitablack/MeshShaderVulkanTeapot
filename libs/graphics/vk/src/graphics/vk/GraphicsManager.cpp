@@ -6,18 +6,26 @@
 
 #include <graphics/vk/GraphicsManager.hpp>
 #include <graphics/vk/impl/allocate_command_buffer.hpp>
+#include <graphics/vk/impl/allocate_descriptor_set.hpp>
 #include <graphics/vk/impl/begin_compose_rendering.hpp>
+#include <graphics/vk/impl/begin_render_target_rendering.hpp>
 #include <graphics/vk/impl/check_instance_version.hpp>
 #include <graphics/vk/impl/check_required_instance_extension.hpp>
 #include <graphics/vk/impl/create_allocator.hpp>
 #include <graphics/vk/impl/create_command_pool.hpp>
+#include <graphics/vk/impl/create_descriptor_pool.hpp>
+#include <graphics/vk/impl/create_descriptor_set_layout.hpp>
 #include <graphics/vk/impl/create_device.hpp>
 #include <graphics/vk/impl/create_fence.hpp>
+#include <graphics/vk/impl/create_fullscreen_triangle_pipeline.hpp>
 #include <graphics/vk/impl/create_instance.hpp>
+#include <graphics/vk/impl/create_pipeline_layout.hpp>
+#include <graphics/vk/impl/create_sampler.hpp>
 #include <graphics/vk/impl/create_semaphore.hpp>
 #include <graphics/vk/impl/create_surface.hpp>
 #include <graphics/vk/impl/create_swapchain.hpp>
 #include <graphics/vk/impl/create_swapchain_image_views.hpp>
+#include <graphics/vk/impl/draw_fullscreen_triangle.hpp>
 #include <graphics/vk/impl/features/RequiredFeatures.hpp>
 #include <graphics/vk/impl/get_graphics_queue_family.hpp>
 #include <graphics/vk/impl/get_present_mode.hpp>
@@ -71,6 +79,26 @@ auto GraphicsManager::destroyDevice() noexcept -> void {
     if (!m_device) {
         return;
     }
+
+    vkDestroyPipeline(m_device, m_fullscreenTrianglePipeline, nullptr);
+    m_fullscreenTrianglePipeline = VK_NULL_HANDLE;
+
+    vkDestroySampler(m_device, m_sampler, nullptr);
+    m_sampler = VK_NULL_HANDLE;
+
+    vkDestroyPipelineLayout(m_device, m_pipelineLayout, nullptr);
+    m_pipelineLayout = VK_NULL_HANDLE;
+
+    for (auto const descriptorPool : m_descriptorPools) {
+        vkDestroyDescriptorPool(m_device, descriptorPool, nullptr);
+    }
+    m_descriptorPools.clear();
+
+    vkDestroyDescriptorSetLayout(m_device, m_storageDescriptorSetLayout, nullptr);
+    m_storageDescriptorSetLayout = VK_NULL_HANDLE;
+
+    vkDestroyDescriptorSetLayout(m_device, m_cisDescriptorSetLayout, nullptr);
+    m_cisDescriptorSetLayout = VK_NULL_HANDLE;
 
     m_renderTarget.destroy();
 
@@ -162,6 +190,32 @@ auto GraphicsManager::changePhysicalDevice(window::Window& window) noexcept -> s
         m_commandPools.push_back(commandPool);
     }
 
+    m_descriptorPools.clear();
+    m_descriptorPools.reserve(FRAMES_IN_FLIGHT);
+    for (uint32_t i{0}; i < FRAMES_IN_FLIGHT; ++i) {
+        TRY_EXPECTED(auto const descriptorPool, impl::create_descriptor_pool(m_device, DESCRIPTOR_COUNT));
+        m_descriptorPools.push_back(descriptorPool);
+    }
+
+    TRY_EXPECTED(m_storageDescriptorSetLayout,
+                 impl::create_descriptor_set_layout(m_device,  //
+                                                    VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,  //
+                                                    DESCRIPTOR_COUNT));
+
+    TRY_EXPECTED(m_cisDescriptorSetLayout,
+                 impl::create_descriptor_set_layout(m_device,  //
+                                                    VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,  //
+                                                    DESCRIPTOR_COUNT));
+
+    TRY_EXPECTED(m_pipelineLayout, impl::create_pipeline_layout(m_device,  //
+                                                                m_storageDescriptorSetLayout,  //
+                                                                m_cisDescriptorSetLayout));
+
+    TRY_EXPECTED(m_sampler, impl::create_sampler(m_device));
+
+    TRY_EXPECTED(m_fullscreenTrianglePipeline, impl::create_fullscreen_triangle_pipeline(
+                                                   m_device, m_pipelineLayout, m_surfaceFormat.surfaceFormat.format));
+
     return {};
 }
 
@@ -237,6 +291,54 @@ auto GraphicsManager::startFrame(window::Window& window) noexcept -> std::expect
 
     m_currSwapchainImageIndex = getImageIndexResult.index;
 
+    auto const commandPool{m_commandPools[m_frameIndex]};
+    vkResetCommandPool(m_device, commandPool, 0);
+
+    TRY_EXPECTED(m_frameData.commandBuffer, impl::allocate_command_buffer(m_device, commandPool));
+
+    auto const descriptorPool{m_descriptorPools[m_frameIndex]};
+    vkResetDescriptorPool(m_device, descriptorPool, 0);
+
+    TRY_EXPECTED(m_frameData.storageDescriptorSet,
+                 impl::allocate_descriptor_set(m_device,  //
+                                               descriptorPool,  //
+                                               m_storageDescriptorSetLayout,  //
+                                               DESCRIPTOR_COUNT));
+
+    TRY_EXPECTED(m_frameData.cisDescriptorSet,
+                 impl::allocate_descriptor_set(m_device,  //
+                                               descriptorPool,  //
+                                               m_cisDescriptorSetLayout,  //
+                                               DESCRIPTOR_COUNT));
+
+    m_frameData.cisDescriptorCounter = 0;
+    m_frameData.storageDescriptorCounter = 0;
+
+    // bind storage descriptor set
+    vkCmdBindDescriptorSets(m_frameData.commandBuffer,  //
+                            VK_PIPELINE_BIND_POINT_GRAPHICS,  //
+                            m_pipelineLayout,  //
+                            0,  //
+                            1,  //
+                            &m_frameData.storageDescriptorSet,  //
+                            0,  //
+                            nullptr);
+
+    // bind cis descriptor set
+    vkCmdBindDescriptorSets(m_frameData.commandBuffer,  //
+                            VK_PIPELINE_BIND_POINT_GRAPHICS,  //
+                            m_pipelineLayout,  //
+                            1,  //
+                            1,  //
+                            &m_frameData.cisDescriptorSet,  //
+                            0,  //
+                            nullptr);
+
+    impl::begin_render_target_rendering(m_frameData.commandBuffer,  //
+                                        m_renderTarget,  //
+                                        {0.2f, 0.8f, 0.2f, 1.0f},  //
+                                        m_surfaceExtent);
+
     return {};
 }
 
@@ -247,20 +349,27 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
 
     auto const imageAvailableSemaphore{m_imageAvailableSemaphores[m_frameIndex]};
     auto const fence{m_fences[m_frameIndex]};
-    auto const commandPool{m_commandPools[m_frameIndex]};
 
-    vkResetCommandPool(m_device, commandPool, 0);
+    // end render target rendering
+    vkCmdEndRendering(m_frameData.commandBuffer);
 
-    TRY_EXPECTED(auto const commandBuffer, impl::allocate_command_buffer(m_device, commandPool));
-
-    impl::begin_compose_rendering(commandBuffer,  //
+    impl::begin_compose_rendering(m_frameData.commandBuffer,  //
+                                  m_renderTarget,  //
                                   swapchainImage,  //
                                   swapchainImageView,  //
                                   m_surfaceExtent);
 
-    vkCmdEndRendering(commandBuffer);
+    impl::draw_fullscreen_triangle(m_device,  //
+                                   m_fullscreenTrianglePipeline,  //
+                                   m_pipelineLayout,  //
+                                   m_sampler,  //
+                                   m_renderTarget,  //
+                                   m_surfaceExtent,  //
+                                   m_frameData);
 
-    utils::set_image_barrier(commandBuffer,  //
+    vkCmdEndRendering(m_frameData.commandBuffer);
+
+    utils::set_image_barrier(m_frameData.commandBuffer,  //
                              swapchainImage,  //
                              VK_IMAGE_ASPECT_COLOR_BIT,  //
                              VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT,  //
@@ -270,11 +379,11 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
                              VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,  //
                              VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-    if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS) {
+    if (vkEndCommandBuffer(m_frameData.commandBuffer) != VK_SUCCESS) {
         return std::unexpected{"failed to end command buffer"};
     }
 
-    TRY_EXPECTED_VOID(impl::submit(commandBuffer,  //
+    TRY_EXPECTED_VOID(impl::submit(m_frameData.commandBuffer,  //
                                    m_queue.queue,  //
                                    imageAvailableSemaphore,  //
                                    renderingFinishedSemaphore,  //
