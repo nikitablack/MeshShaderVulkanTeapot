@@ -12,7 +12,7 @@ auto create_allocator(VkInstance instance,  //
     fmt::println("creating vma allocator");
 
     VmaAllocatorCreateInfo info{};
-    info.flags = 0;  // VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
+    info.flags = VMA_ALLOCATOR_CREATE_KHR_MAINTENANCE5_BIT;
     info.physicalDevice = physicalDevice;
     info.device = device;
     info.preferredLargeHeapBlockSize = 0;

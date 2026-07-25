@@ -1,7 +1,7 @@
-#include <graphics/vk/impl/submit.hpp>
+#include <graphics/vk/utils/submit.hpp>
 #include <vulkan/utility/vk_struct_helper.hpp>
 
-namespace graphics::vk::impl {
+namespace graphics::vk::utils {
 
 auto submit(VkCommandBuffer commandBuffer,  //
             VkQueue queue,  //
@@ -27,12 +27,12 @@ auto submit(VkCommandBuffer commandBuffer,  //
 
     VkSubmitInfo2 submitInfo = vku::InitStructHelper{};
     submitInfo.flags = 0;
-    submitInfo.waitSemaphoreInfoCount = 1;
-    submitInfo.pWaitSemaphoreInfos = &waitSemaphoreSubmitInfo;
+    submitInfo.waitSemaphoreInfoCount = imageAvailableSemaphore ? 1 : 0;
+    submitInfo.pWaitSemaphoreInfos = imageAvailableSemaphore ? &waitSemaphoreSubmitInfo : nullptr;
     submitInfo.commandBufferInfoCount = 1;
     submitInfo.pCommandBufferInfos = &commandBufferSubmitInfo;
-    submitInfo.signalSemaphoreInfoCount = 1;
-    submitInfo.pSignalSemaphoreInfos = &signalSemaphoreSubmitInfo;
+    submitInfo.signalSemaphoreInfoCount = renderingFinishedSemaphore ? 1 : 0;
+    submitInfo.pSignalSemaphoreInfos = renderingFinishedSemaphore ? &signalSemaphoreSubmitInfo : nullptr;
 
     if (vkQueueSubmit2(queue, 1, &submitInfo, fence) != VK_SUCCESS) {
         return std::unexpected{"failed to submit"};
@@ -41,4 +41,4 @@ auto submit(VkCommandBuffer commandBuffer,  //
     return {};
 }
 
-}  // namespace graphics::vk::impl
+}  // namespace graphics::vk::utils

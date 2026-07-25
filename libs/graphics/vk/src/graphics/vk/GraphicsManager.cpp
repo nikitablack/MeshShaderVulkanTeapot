@@ -2,7 +2,9 @@
 #include <vk_mem_alloc.h>
 //
 
+#include <backends/imgui_impl_glfw.h>
 #include <fmt/core.h>
+#include <imgui.h>
 
 #include <graphics/vk/GraphicsManager.hpp>
 #include <graphics/vk/impl/allocate_command_buffer.hpp>
@@ -18,6 +20,7 @@
 #include <graphics/vk/impl/create_device.hpp>
 #include <graphics/vk/impl/create_fence.hpp>
 #include <graphics/vk/impl/create_fullscreen_triangle_pipeline.hpp>
+#include <graphics/vk/impl/create_imgui_pipeline.hpp>
 #include <graphics/vk/impl/create_instance.hpp>
 #include <graphics/vk/impl/create_pipeline_layout.hpp>
 #include <graphics/vk/impl/create_sampler.hpp>
@@ -26,8 +29,10 @@
 #include <graphics/vk/impl/create_swapchain.hpp>
 #include <graphics/vk/impl/create_swapchain_image_views.hpp>
 #include <graphics/vk/impl/draw_fullscreen_triangle.hpp>
+#include <graphics/vk/impl/draw_imgui.hpp>
 #include <graphics/vk/impl/features/RequiredFeatures.hpp>
 #include <graphics/vk/impl/get_graphics_queue_family.hpp>
+#include <graphics/vk/impl/get_physical_device_properties.hpp>
 #include <graphics/vk/impl/get_present_mode.hpp>
 #include <graphics/vk/impl/get_queue.hpp>
 #include <graphics/vk/impl/get_supported_physical_devices.hpp>
@@ -36,9 +41,11 @@
 #include <graphics/vk/impl/get_surface_format.hpp>
 #include <graphics/vk/impl/get_swapchain_image_index.hpp>
 #include <graphics/vk/impl/get_swapchain_images.hpp>
+#include <graphics/vk/impl/handle_imgui_textures.hpp>
 #include <graphics/vk/impl/present.hpp>
-#include <graphics/vk/impl/submit.hpp>
+#include <graphics/vk/impl/setup_imgui.hpp>
 #include <graphics/vk/utils/barrier_helper.hpp>
+#include <graphics/vk/utils/submit.hpp>
 #include <utils/try_expected.hpp>
 #include <window/Window.hpp>
 
@@ -53,6 +60,8 @@ auto GraphicsManager::init(window::Window& window) noexcept -> std::expected<voi
     TRY_EXPECTED(m_surface, impl::create_surface(m_instance, window));
     TRY_EXPECTED(m_supportedPhysicalDevices, impl::get_supported_physical_devices(m_instance));
     TRY_EXPECTED_VOID(changePhysicalDevice(window));
+
+    TRY_EXPECTED_VOID(impl::setup_imgui(window));
 
     return {};
 }
@@ -73,12 +82,28 @@ auto GraphicsManager::destroy() noexcept -> void {
 
     vkDestroyInstance(m_instance, nullptr);
     m_instance = VK_NULL_HANDLE;
+
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 }
 
 auto GraphicsManager::destroyDevice() noexcept -> void {
     if (!m_device) {
         return;
     }
+
+    for (auto& img : m_imguiImages) {
+        img.destroy();
+    }
+    m_imguiImages.clear();
+
+    vkDestroyPipeline(m_device, m_imguiPipeline, nullptr);
+    m_imguiPipeline = VK_NULL_HANDLE;
+
+    for (auto& imguiBuffer : m_imguiBuffers) {
+        imguiBuffer.destroy();
+    }
+    m_imguiBuffers.clear();
 
     vkDestroyPipeline(m_device, m_fullscreenTrianglePipeline, nullptr);
     m_fullscreenTrianglePipeline = VK_NULL_HANDLE;
@@ -130,6 +155,8 @@ auto GraphicsManager::destroyDevice() noexcept -> void {
     vkDestroySwapchainKHR(m_device, m_swapchain, nullptr);
     m_swapchain = VK_NULL_HANDLE;
 
+    vmaDestroyAllocator(m_allocator);
+
     vkDestroyDevice(m_device, nullptr);
     m_device = VK_NULL_HANDLE;
 }
@@ -140,6 +167,8 @@ auto GraphicsManager::changePhysicalDevice(window::Window& window) noexcept -> s
     destroyDevice();
 
     m_physicalDevice = m_supportedPhysicalDevices[0];
+
+    m_physicalDeviceProperties = impl::get_physical_device_properties(m_physicalDevice);
 
     uint32_t constexpr REQUIRED_QUEUE_COUNT{1};
     uint32_t constexpr QUEUE_INDEX{0};
@@ -216,6 +245,24 @@ auto GraphicsManager::changePhysicalDevice(window::Window& window) noexcept -> s
     TRY_EXPECTED(m_fullscreenTrianglePipeline, impl::create_fullscreen_triangle_pipeline(
                                                    m_device, m_pipelineLayout, m_surfaceFormat.surfaceFormat.format));
 
+    m_imguiBuffers.clear();
+    m_imguiBuffers.reserve(FRAMES_IN_FLIGHT);
+    for (uint32_t i{0}; i < FRAMES_IN_FLIGHT; ++i) {
+        size_t constexpr IMGUI_BUFFER_SIZE{10 * 1024 * 1024};
+
+        HostVisibleBuffer imguiBuffer{};
+        TRY_EXPECTED_VOID(imguiBuffer.init(m_allocator,  //
+                                           IMGUI_BUFFER_SIZE,  //
+                                           VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT));
+
+        m_imguiBuffers.push_back(imguiBuffer);
+    }
+
+    TRY_EXPECTED(m_imguiPipeline,
+                 impl::create_imgui_pipeline(m_device,  //
+                                             m_pipelineLayout,  //
+                                             m_surfaceFormat.surfaceFormat.format));
+
     return {};
 }
 
@@ -252,6 +299,9 @@ auto GraphicsManager::resize(window::Window& window) noexcept -> std::expected<v
 }
 
 auto GraphicsManager::startFrame(window::Window& window) noexcept -> std::expected<void, std::string> {
+    ImGui_ImplGlfw_NewFrame();
+    ImGui::NewFrame();
+
     auto const imageAvailableSemaphore{m_imageAvailableSemaphores[m_frameIndex]};
     auto const fence{m_fences[m_frameIndex]};
 
@@ -339,6 +389,8 @@ auto GraphicsManager::startFrame(window::Window& window) noexcept -> std::expect
                                         {0.2f, 0.8f, 0.2f, 1.0f},  //
                                         m_surfaceExtent);
 
+    m_frameData.imguiBuffer = &m_imguiBuffers.at(m_frameIndex);
+
     return {};
 }
 
@@ -353,6 +405,14 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
     // end render target rendering
     vkCmdEndRendering(m_frameData.commandBuffer);
 
+    ImGui::Render();
+
+    TRY_EXPECTED_VOID(impl::handle_imgui_textures(m_device,  //
+                                                  m_allocator,  //
+                                                  m_commandPools[m_frameIndex],  //
+                                                  m_queue.queue,  //
+                                                  m_imguiImages));
+
     impl::begin_compose_rendering(m_frameData.commandBuffer,  //
                                   m_renderTarget,  //
                                   swapchainImage,  //
@@ -366,6 +426,14 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
                                    m_renderTarget,  //
                                    m_surfaceExtent,  //
                                    m_frameData);
+
+    TRY_EXPECTED_VOID(impl::draw_imgui(m_frameData,  //
+                                       m_device,  //
+                                       m_pipelineLayout,  //
+                                       m_imguiPipeline,  //
+                                       m_surfaceExtent,  //
+                                       m_sampler,  //
+                                       m_physicalDeviceProperties));
 
     vkCmdEndRendering(m_frameData.commandBuffer);
 
@@ -383,11 +451,11 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
         return std::unexpected{"failed to end command buffer"};
     }
 
-    TRY_EXPECTED_VOID(impl::submit(m_frameData.commandBuffer,  //
-                                   m_queue.queue,  //
-                                   imageAvailableSemaphore,  //
-                                   renderingFinishedSemaphore,  //
-                                   fence));
+    TRY_EXPECTED_VOID(utils::submit(m_frameData.commandBuffer,  //
+                                    m_queue.queue,  //
+                                    imageAvailableSemaphore,  //
+                                    renderingFinishedSemaphore,  //
+                                    fence));
 
     TRY_EXPECTED_VOID(impl::present(m_queue.queue,  //
                                     m_swapchain,  //

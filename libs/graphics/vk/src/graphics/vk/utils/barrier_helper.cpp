@@ -44,4 +44,36 @@ auto set_image_barrier(VkCommandBuffer commandBuffer,  //
     vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
 }
 
+auto set_buffer_barrier(VkCommandBuffer commandBuffer,  //
+                        VkBuffer buffer,  //
+                        VkDeviceSize offset,  //
+                        VkDeviceSize size,  //
+                        VkPipelineStageFlags2 srcStage,  //
+                        VkAccessFlags2 srcAccess,  //
+                        VkPipelineStageFlags2 dstStage,  //
+                        VkAccessFlags2 dstAccess  //
+                        ) noexcept -> void {
+    VkBufferMemoryBarrier2 barrier = vku::InitStructHelper{};
+    barrier.srcStageMask = srcStage;
+    barrier.srcAccessMask = srcAccess;
+    barrier.dstStageMask = dstStage;
+    barrier.dstAccessMask = dstAccess;
+    barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+    barrier.buffer = buffer;
+    barrier.offset = offset;
+    barrier.size = size;
+
+    VkDependencyInfo dependencyInfo = vku::InitStructHelper{};
+    dependencyInfo.dependencyFlags = 0;
+    dependencyInfo.memoryBarrierCount = 0;
+    dependencyInfo.pMemoryBarriers = nullptr;
+    dependencyInfo.bufferMemoryBarrierCount = 1;
+    dependencyInfo.pBufferMemoryBarriers = &barrier;
+    dependencyInfo.imageMemoryBarrierCount = 0;
+    dependencyInfo.pImageMemoryBarriers = nullptr;
+
+    vkCmdPipelineBarrier2(commandBuffer, &dependencyInfo);
+}
+
 }  // namespace graphics::vk::utils

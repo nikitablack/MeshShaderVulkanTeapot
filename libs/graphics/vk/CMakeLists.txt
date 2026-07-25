@@ -21,9 +21,13 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/barrier_helper.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/create_shader_module.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/get_push_constant_data.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/init_helper.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/utils/submit.hpp
 
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/Buffer.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/FrameData.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/GraphicsManager.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/HostVisibleBuffer.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/Image2d.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/include/graphics/vk/VulkanQueue.hpp
 
@@ -66,6 +70,8 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fence.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fullscreen_triangle_pipeline.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_fullscreen_triangle_pipeline.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_imgui_pipeline.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_imgui_pipeline.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_instance.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_pipeline_layout.cpp
@@ -82,6 +88,8 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/create_swapchain.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_fullscreen_triangle.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_fullscreen_triangle.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_imgui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/draw_imgui.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_graphics_queue_family.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_graphics_queue_family.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_physical_device_properties.cpp
@@ -98,6 +106,8 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_extent.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_images.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_images.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/handle_imgui_textures.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/handle_imgui_textures.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_format.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_surface_format.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/get_swapchain_image_index.cpp
@@ -109,13 +119,17 @@ target_sources(graphics_vk
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredDeviceExtensions.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredInstanceExtensions.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/RequiredInstanceExtensions.hpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/submit.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/submit.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/setup_imgui.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/impl/setup_imgui.hpp
 
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/barrier_helper.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/create_shader_module.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/init_helper.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/utils/submit.cpp
 
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/Buffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/GraphicsManager.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/HostVisibleBuffer.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/graphics/vk/Image2d.cpp
 )
 
@@ -132,7 +146,7 @@ cmrc_add_resource_library(${shaders} "")
 
 add_library(libs::shaders
     ALIAS
-    shaders
+        shaders
 )
 
 addCompileShadersCommand(
@@ -141,17 +155,31 @@ addCompileShadersCommand(
     SHADERS
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fullscreen_triangle.frag
         ${CMAKE_CURRENT_SOURCE_DIR}/shaders/fullscreen_triangle.vert
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/imgui.frag
+        ${CMAKE_CURRENT_SOURCE_DIR}/shaders/imgui.vert
+)
+
+set(fonts_lib "fonts_lib")
+cmrc_add_resource_library(${fonts_lib} "")
+
+add_library(libs::fonts_lib
+    ALIAS
+        fonts_lib
 )
 
 target_link_libraries(graphics_vk
     PUBLIC
+        imgui
         Vulkan::Vulkan
         libs::window
         GPUOpen::VulkanMemoryAllocator
 
     PRIVATE
         fmt::fmt
+        libs::fonts_lib
         libs::shaders
         libs::utils
         libs::warnings_as_errors
 )
+
+cmrc_add_resources(${fonts_lib} WHENCE ${CMAKE_CURRENT_SOURCE_DIR}/fonts ${CMAKE_CURRENT_SOURCE_DIR}/fonts/OpenSans-Regular.ttf)

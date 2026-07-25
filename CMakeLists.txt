@@ -8,6 +8,7 @@ include(libs/cmake/CompileVulkanShaders.cmake)
 add_subdirectory(third_party/cmakerc SYSTEM)
 add_subdirectory(third_party/fmt SYSTEM)
 add_subdirectory(third_party/glfw SYSTEM)
+add_subdirectory(third_party/imgui SYSTEM)
 add_subdirectory(third_party/vma SYSTEM)
 
 add_subdirectory(libs/graphics/vk)

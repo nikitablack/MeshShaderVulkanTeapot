@@ -5,7 +5,7 @@
 #include <expected>
 #include <string>
 
-namespace graphics::vk::impl {
+namespace graphics::vk::utils {
 
 [[nodiscard]] auto submit(VkCommandBuffer commandBuffer,  //
                           VkQueue queue,  //

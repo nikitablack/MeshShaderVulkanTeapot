@@ -5,6 +5,7 @@
 
 #include <expected>
 #include <graphics/vk/FrameData.hpp>
+#include <graphics/vk/HostVisibleBuffer.hpp>
 #include <graphics/vk/Image2d.hpp>
 #include <graphics/vk/VulkanQueue.hpp>
 #include <string>
@@ -44,6 +45,7 @@ private:
     std::vector<VkPhysicalDevice> m_supportedPhysicalDevices{};
 
     VkPhysicalDevice m_physicalDevice{VK_NULL_HANDLE};
+    VkPhysicalDeviceProperties2 m_physicalDeviceProperties{};
     VkDevice m_device{VK_NULL_HANDLE};
     VulkanQueue m_queue{};
     VmaAllocator m_allocator{VK_NULL_HANDLE};
@@ -62,6 +64,9 @@ private:
     VkPipelineLayout m_pipelineLayout{VK_NULL_HANDLE};
     VkSampler m_sampler{VK_NULL_HANDLE};
     VkPipeline m_fullscreenTrianglePipeline{VK_NULL_HANDLE};
+    std::vector<HostVisibleBuffer> m_imguiBuffers{};
+    VkPipeline m_imguiPipeline{VK_NULL_HANDLE};
+    std::vector<Image2d> m_imguiImages{};
 
     VkSurfaceCapabilities2KHR m_surfaceCapabilities{};
     VkExtent2D m_surfaceExtent{};
