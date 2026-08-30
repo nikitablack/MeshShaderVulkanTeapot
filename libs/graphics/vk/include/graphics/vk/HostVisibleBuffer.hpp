@@ -13,6 +13,12 @@ class HostVisibleBuffer {
 public:
     HostVisibleBuffer() = default;
 
+    HostVisibleBuffer(HostVisibleBuffer const&) = delete;
+    auto operator=(HostVisibleBuffer const&) noexcept -> HostVisibleBuffer& = delete;
+
+    HostVisibleBuffer(HostVisibleBuffer&& other) noexcept;
+    auto operator=(HostVisibleBuffer&& other) noexcept -> HostVisibleBuffer&;
+
 public:
     [[nodiscard]] auto init(VmaAllocator allocator,  //
                             size_t size,  //

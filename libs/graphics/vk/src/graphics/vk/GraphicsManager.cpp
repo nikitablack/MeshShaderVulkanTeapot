@@ -92,6 +92,10 @@ auto GraphicsManager::destroyDevice() noexcept -> void {
         return;
     }
 
+    if (vkDeviceWaitIdle(m_device) != VK_SUCCESS) {
+        fmt::println("failed to wait device idle");
+    }
+
     for (auto& img : m_imguiImages) {
         img.destroy();
     }
@@ -255,7 +259,7 @@ auto GraphicsManager::changePhysicalDevice(window::Window& window) noexcept -> s
                                            IMGUI_BUFFER_SIZE,  //
                                            VK_BUFFER_USAGE_2_STORAGE_BUFFER_BIT | VK_BUFFER_USAGE_2_INDEX_BUFFER_BIT));
 
-        m_imguiBuffers.push_back(imguiBuffer);
+        m_imguiBuffers.push_back(std::move(imguiBuffer));
     }
 
     TRY_EXPECTED(m_imguiPipeline,
@@ -431,7 +435,6 @@ auto GraphicsManager::endFrame() noexcept -> std::expected<void, std::string> {
                                        m_device,  //
                                        m_pipelineLayout,  //
                                        m_imguiPipeline,  //
-                                       m_surfaceExtent,  //
                                        m_sampler,  //
                                        m_physicalDeviceProperties));
 

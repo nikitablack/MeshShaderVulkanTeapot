@@ -28,20 +28,9 @@ auto draw_imgui(FrameData& frameData,  //
                 VkDevice device,  //
                 VkPipelineLayout pipelineLayout,  //
                 VkPipeline pipeline,  //
-                VkExtent2D surfaceExtent,  //
                 VkSampler sampler,  //
                 VkPhysicalDeviceProperties2 const& deviceProperties  //
                 ) noexcept -> std::expected<void, std::string> {
-    VkViewport viewport{};
-    viewport.x = 0.0f;
-    viewport.y = 0.0f;
-    viewport.width = static_cast<float>(surfaceExtent.width);
-    viewport.height = static_cast<float>(surfaceExtent.height);
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-
-    vkCmdSetViewport(frameData.commandBuffer, 0, 1, &viewport);
-
     vkCmdBindPipeline(frameData.commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipeline);
 
     auto const* const drawData{ImGui::GetDrawData()};

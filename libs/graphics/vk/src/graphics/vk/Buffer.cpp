@@ -4,6 +4,35 @@
 
 namespace graphics::vk {
 
+Buffer::Buffer(Buffer&& other) noexcept
+    : m_allocator{other.m_allocator},
+      m_device{other.m_device},
+      m_buffer{other.m_buffer},
+      m_size{other.m_size},
+      m_allocation{other.m_allocation} {
+    other.m_allocator = VK_NULL_HANDLE;
+    other.m_device = VK_NULL_HANDLE;
+    other.m_buffer = VK_NULL_HANDLE;
+    other.m_size = 0;
+    other.m_allocation = VK_NULL_HANDLE;
+}
+
+auto Buffer::operator=(Buffer&& other) noexcept -> Buffer& {
+    m_allocator = other.m_allocator;
+    m_device = other.m_device;
+    m_buffer = other.m_buffer;
+    m_size = other.m_size;
+    m_allocation = other.m_allocation;
+
+    other.m_allocator = VK_NULL_HANDLE;
+    other.m_device = VK_NULL_HANDLE;
+    other.m_buffer = VK_NULL_HANDLE;
+    other.m_size = 0;
+    other.m_allocation = VK_NULL_HANDLE;
+
+    return *this;
+}
+
 auto Buffer::init(VmaAllocator allocator,  //
                   VkDevice device,  //
                   size_t size,  //
@@ -13,7 +42,7 @@ auto Buffer::init(VmaAllocator allocator,  //
     m_device = device;
     m_size = size;
 
-    VkBufferUsageFlags2CreateInfo flagsCreateInfo = vku::InitStructHelper{};
+    VkBufferUsageFlags2CreateInfoKHR flagsCreateInfo = vku::InitStructHelper{};
     flagsCreateInfo.usage = usageFlags;
 
     VkBufferCreateInfo bufferCreateInfo = vku::InitStructHelper{&flagsCreateInfo};

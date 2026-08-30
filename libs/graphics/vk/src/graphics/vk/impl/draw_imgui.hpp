@@ -20,7 +20,6 @@ namespace graphics::vk::impl {
                               VkDevice device,  //
                               VkPipelineLayout pipelineLayout,  //
                               VkPipeline pipeline,  //
-                              VkExtent2D surfaceExtent,  //
                               VkSampler sampler,  //
                               VkPhysicalDeviceProperties2 const& deviceProperties  //
                               ) noexcept -> std::expected<void, std::string>;

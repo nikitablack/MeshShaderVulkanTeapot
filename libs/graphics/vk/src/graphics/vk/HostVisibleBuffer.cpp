@@ -4,6 +4,28 @@
 
 namespace graphics::vk {
 
+HostVisibleBuffer::HostVisibleBuffer(HostVisibleBuffer&& other) noexcept
+    : m_allocator{other.m_allocator}, m_buffer{other.m_buffer}, m_size{other.m_size}, m_allocation{other.m_allocation} {
+    other.m_allocator = VK_NULL_HANDLE;
+    other.m_buffer = VK_NULL_HANDLE;
+    other.m_size = 0;
+    other.m_allocation = VK_NULL_HANDLE;
+}
+
+auto HostVisibleBuffer::operator=(HostVisibleBuffer&& other) noexcept -> HostVisibleBuffer& {
+    m_allocator = other.m_allocator;
+    m_buffer = other.m_buffer;
+    m_size = other.m_size;
+    m_allocation = other.m_allocation;
+
+    other.m_allocator = VK_NULL_HANDLE;
+    other.m_buffer = VK_NULL_HANDLE;
+    other.m_size = 0;
+    other.m_allocation = VK_NULL_HANDLE;
+
+    return *this;
+}
+
 auto HostVisibleBuffer::init(VmaAllocator allocator,  //
                              size_t size,  //
                              VkBufferUsageFlags2 usageFlags  //
@@ -11,7 +33,7 @@ auto HostVisibleBuffer::init(VmaAllocator allocator,  //
     m_allocator = allocator;
     m_size = size;
 
-    VkBufferUsageFlags2CreateInfo flagsCreateInfo = vku::InitStructHelper{};
+    VkBufferUsageFlags2CreateInfoKHR flagsCreateInfo = vku::InitStructHelper{};
     flagsCreateInfo.usage = usageFlags;
 
     VkBufferCreateInfo bufferCreateInfo = vku::InitStructHelper{&flagsCreateInfo};

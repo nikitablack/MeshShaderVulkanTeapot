@@ -12,6 +12,12 @@ class Buffer {
 public:
     Buffer() = default;
 
+    Buffer(Buffer const&) = delete;
+    auto operator=(Buffer const&) noexcept -> Buffer& = delete;
+
+    Buffer(Buffer&& other) noexcept;
+    auto operator=(Buffer&& other) noexcept -> Buffer&;
+
 public:
     [[nodiscard]] auto init(VmaAllocator allocator,  //
                             VkDevice device,  //
